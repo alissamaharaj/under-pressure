@@ -23,7 +23,7 @@ The NHANES information on the CDC website was used to determine which cycle to u
 		- `SMQ040` (Do you now smoke cigarettes: `1` = Every day, `2` = Some days, `3` = Not at all). Special missing codes: `7` (Refused), `9` (Don't know)
 		- `SMD641` (Days smoked cigarettes during past 30 days, `0`–`30`). Special missing codes: `77` (Refused), `99` (Don't know)
 		- `SMD650` (Average cigarettes/day during past 30 days, `1`–`95`+). Special missing codes: `777` (Refused), `999` (Don't know)
-  - Youth Cigarette Items (12-17):
+	- Youth Cigarette Items (12-17):
 		- `SMQ621` (Cigarettes smoked in entire life: `1` = Never through `8` = 100 or more). Special missing codes: `77` (Refused), `99` (Don't know)
 - Cholesterol - `TCHOL_L`:
 	- Linkage ID - `SEQN`
@@ -31,11 +31,11 @@ The NHANES information on the CDC website was used to determine which cycle to u
 	- Total Cholesterol (Primary) - `LBXTC`, Total cholesterol in mg/dL, participants aged 6+ years; continuous range `62` to `438` mg/dL; LLOD = `4` mg/dL
 	- Total Cholesterol (SI Units): `LBDTCSI`, Total cholesterol in mmol/L, calculated as LBXTC × `0.02586`; continuous range `1.60` to `11.33` mmol/L
 
-For the smoking adult smoking data, `current`, `former`, and `never` smokers are resolved as follows based on the skipping pattern of the questionnaire:
+For the adult smoking data, `current`, `former`, and `never` smokers are resolved as follows based on the skipping pattern of the questionnaire:
 	- `never`: `SMQ020` = `2`
 	- `former`: `SMQ020` = `1` and `SMQ040` = `3`
 	- `current`: `SMQ020` = `1` and `SMQ040` = `1` or `2`
 	- `missing`: `SMQ020` = `7`, `9` or blank (for adults), or `SMQ020` = `1` with a blank, `7` or `9` on `SMQ040`
-A blank `SMQ040` is structural for never-smokers and real missing otherwise, so the recode must start from `SMQ020`, never from `SMQ040` alone.
+A blank `SMQ040` is structural for never-smokers and truly missing otherwise, so the recode must start from `SMQ020`, never from `SMQ040` alone.
 
 This will be used as a reference key.
