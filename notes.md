@@ -39,3 +39,15 @@ For the adult smoking data, `current`, `former`, and `never` smokers are resolve
 A blank `SMQ040` is structural for never-smokers and truly missing otherwise, so the recode must start from `SMQ020`, never from `SMQ040` alone.
 
 This will be used as a reference key.
+
+*2026-11-17: Created an R script (placeholder...insert lou) to load the `DEMO_L` table and return the dataframe dimensions and variables. 
+
+`DEMO_L` was checked for unique `SEQN` values and confirmed to have 11933 rows and 27 columns, all with unique `SEQN` values. The smoking data has 9015 rows and 9 columns.
+
+Then I checked the age data for participants under the age of 12 (since the smoking data was said to start at 12); this returned 2545 participants, but this leaves 9388 rows, which leaves 373 rows unaccounted for in the difference between the age 12+ participants and the smoking data.
+
+I checked for 'NA' ages to ensure the discrepancy did not come from participants with unrecorded ages; this check found no participants with unrecorded ages.
+
+The smoking data was checked and confirmed that all `SEQN` values were also unique and all present in the total cycle data. The age range was also confirmed to be 12-80. The ages of the 373 participants were checked, and the range was 12-17, meaning all missing participants were under 18, making all adults accounted for in the smoking data. This project will only use adult data, so the 373-row discrepancy does not affect the project scope.
+
+Hitches encountered: when trying to determine the number of participants with age below 12, I attempted to use `nrow()` on the query, which returned `NULL` since the query returned a logical vector; this was resolved by using the `sum()` function to add the number of returned TRUE/FALSE values.
