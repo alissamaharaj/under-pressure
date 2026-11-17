@@ -32,10 +32,11 @@ The NHANES information on the CDC website was used to determine which cycle to u
 	- Total Cholesterol (SI Units): `LBDTCSI`, Total cholesterol in mmol/L, calculated as LBXTC × `0.02586`; continuous range `1.60` to `11.33` mmol/L
 
 For the adult smoking data, `current`, `former`, and `never` smokers are resolved as follows based on the skipping pattern of the questionnaire:
-	- `never`: `SMQ020` = `2`
-	- `former`: `SMQ020` = `1` and `SMQ040` = `3`
-	- `current`: `SMQ020` = `1` and `SMQ040` = `1` or `2`
-	- `missing`: `SMQ020` = `7`, `9` or blank (for adults), or `SMQ020` = `1` with a blank, `7` or `9` on `SMQ040`
+- `never`: `SMQ020` = `2`
+- `former`: `SMQ020` = `1` and `SMQ040` = `3`
+- `current`: `SMQ020` = `1` and `SMQ040` = `1` or `2`
+- `missing`: `SMQ020` = `7`, `9` or blank (for adults), or `SMQ020` = `1` with a blank, `7` or `9` on `SMQ040`
+
 A blank `SMQ040` is structural for never-smokers and truly missing otherwise, so the recode must start from `SMQ020`, never from `SMQ040` alone.
 
 This will be used as a reference key.
