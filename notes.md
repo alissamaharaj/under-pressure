@@ -84,3 +84,45 @@ The four NA counts mix people absent from a table with people present but blank,
 I also did some one-off checks which were not included in the final R script to ensure that the `SEQN` values from each secondary table matched value for value with the demographic table, and did not only match the row counts.
 
 Then I cleaned up the script to remove the test and print lines, ran the trimmed script from a clean session, and did a one-off dimension check on the final result to ensure it was still working as expected, which it was.
+
+*2026-11-20: I added some lines to the end of the pull_and_join script so that it saves the joined table as an object that can be called by the data cleaning script instead of calling and running the entire script every time to avoid always having to pull from the CDC, which requires an online connection and is slow. This means if the pull_and_join script is ever changed, it must be rerun to regenerate a new `dsbpt` table object before the cleaning script is used. This generated file lives in the `data/` directory, which is gitignored.
+
+Hitch encountered at this point: the script generated a new data folder with the file inside it because my working directory was not set to my repo root, fixed by setting the repo root as the working directory and rerunning the script.
+
+Then I created [02_clean.R](insert lou), the data cleaning script. I pulled the `dsbpt` table object from the generated data file and ran some quick sanity checks to make sure it was loaded as expected; the dimensions and class matched as expected.
+
+Then I filtered the table by age to get adult rows only, the adult row count is 8153, and the filter rule is ">= 18", with 80 as a top code; a hitch here was that I attempted to use the `filter()` function by passing the arguments incorrectly. I passed a logical vector instead of the dataframe as the first argument and the bare column as the second.
+
+Using the filtered data, I created a table of the smoking questionnaire data counts, including NA rows, which returned this result:
+```
+Yes         No    Refused Don't know       <NA> 
+3243       4878          7          7         18
+```
+
+I added a column to the adults data to show smoker status derived from `SMQ020` first, in terms of 'never/former/current'; this includes the 32 adults NA: (18 blank, 7 Refused, 7 Don’t know). Hitches here were that, when setting the `case_when` for the column, I used `|` where `&` was needed, and I tried to hardcode "NA" as a string instead of `NA_character_`. I also had trouble trying to include the factor conversion nested in the initial `mutate` call, but ultimately decided that adding a second call to overwrite the first with the factor conversion was cleaner. This was the resulting table from the resulting column:
+```
+  never  former current    <NA> 
+   4878    2053    1190      32
+```
+
+I ran a few sanity checks on the blood pressure and cholesterol tables to make sure there were no special codes in the columns, only values; I checked the completeness of the blood pressure readings to check participant count by number of readings; the result of this check was:
+```
+0    1    2    3 
+6100   17    6 2030
+```
+with '0' being no missing readings and '3' being no readings.
+
+Then, pulling the `RIDSTATR` table and checking to evaluate the NA counts per reading for the exam data to confirm that every adult who was interviewed only was assigned 'NA' and to determine the "Examined but NA" counts. The results were:
+```
+Interviewed only Both interviewed and MEC examined 
+1816                              6337
+```
+
+```
+Variable	Adult NAs	Never examined	Examined, but NA
+BMXBMI			1,918			1,816				102
+BPXOSY1			2,030			1,816				214
+LBXTC			2,436			1,816				620
+```
+
+This count includes adults absent from BPXO_L or TCHOL_L and adults present but blank. The BP NA count also confirms that all 23 partial-reading adults have reading 1 present, since the NA count matches exactly the 3 readings missing count from the previous check.
