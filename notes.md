@@ -126,3 +126,9 @@ LBXTC			2,436			1,816				620
 ```
 
 This count includes adults absent from BPXO_L or TCHOL_L and adults present but blank. The BP NA count also confirms that all 23 partial-reading adults have reading 1 present, since the NA count matches exactly the 3 readings missing count from the previous check.
+
+Next, for the blood pressure data, I decided that when calculating the means, the first reading will always be excluded and treated as a control value to account for deviations in initial readings due to the white-coat effect, etc., and use readings 2 and 3 to calculate the mean; in cases where only one other value is present, it serves as the mean on its own; in cases where reading 1 is the only value available, the mean is NA.
+
+Then I added two columns to the adults data, `sbp_first`, which copies the first reading, and `sbp_later`, which gives the mean of the other readings based on the criteria I just outlined. `rowMeans` gives `NaN` when both later readings are missing, so a second `mutate` is used to convert these to real NAs. This gives 2036 'NA' rows, where 2030 have no readings, and 6 have reading 1 as the only reading.
+
+Hitch: I tried to use `==` where `~` was required in a `case_when` assignment block when writing the `mutate` to give `NA_real_` objects to the empty mean rows.
