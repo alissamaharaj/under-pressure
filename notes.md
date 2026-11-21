@@ -89,9 +89,9 @@ Then I cleaned up the script to remove the test and print lines, ran the trimmed
 
 Hitch encountered at this point: the script generated a new data folder with the file inside it because my working directory was not set to my repo root, fixed by setting the repo root as the working directory and rerunning the script.
 
-Then I created [02_clean.R](insert lou), the data cleaning script. I pulled the `dsbpt` table object from the generated data file and ran some quick sanity checks to make sure it was loaded as expected; the dimensions and class matched as expected.
+Then I created [02_clean.R](https://github.com/alissamaharaj/under-pressure/blob/main/src/02_clean.R), the data cleaning script. I pulled the `dsbpt` table object from the generated data file and ran some quick sanity checks to make sure it was loaded as expected; the dimensions and class matched as expected.
 
-Then I filtered the table by age to get adult rows only, the adult row count is 8153, and the filter rule is ">= 18", with 80 as a top code; a hitch here was that I attempted to use the `filter()` function by passing the arguments incorrectly. I passed a logical vector instead of the dataframe as the first argument and the bare column as the second.
+Then I filtered the table by age to get adult rows only; the adult row count is 8153, and the filter rule is ">= 18", with 80 as a top code; a hitch here was that I attempted to use the `filter()` function by passing the arguments incorrectly. I passed a logical vector instead of the dataframe as the first argument and the bare column as the second.
 
 Using the filtered data, I created a table of the smoking questionnaire data counts, including NA rows, which returned this result:
 ```
@@ -132,3 +132,11 @@ Next, for the blood pressure data, I decided that when calculating the means, th
 Then I added two columns to the adults data, `sbp_first`, which copies the first reading, and `sbp_later`, which gives the mean of the other readings based on the criteria I just outlined. `rowMeans` gives `NaN` when both later readings are missing, so a second `mutate` is used to convert these to real NAs. This gives 2036 'NA' rows, where 2030 have no readings, and 6 have reading 1 as the only reading.
 
 Hitch: I tried to use `==` where `~` was required in a `case_when` assignment block when writing the `mutate` to give `NA_real_` objects to the empty mean rows.
+
+*2026-11-21: I confirmed that the `RIAGENDR` data gives a factor with readable labels, so no refactor was needed like I had to do for the smoking data. It gives a row count of 8153 with no NAs, which covers all the adult data. "Male" is the first level of `RIAGENDR` so it is the regression reference, and the sex coefficient will be "Female" relative to "Male".
+
+I built the object `adults_clean` consisting of the `SEQN`, `RIDAGEYR`, `RIAGENDR`, `BMXBMI`, `smokes`, `LBXTC`, `sbp_first`, and `sbp_later` columns and did sanity checks for the number of rows and the number of NAs for each, which gave the expected outputs. All adults in adults_clean, with no rows dropped, so the paired test and the model share one object. I also checked the number of complete cases for the model variables: `RIDAGEYR`, `RIAGENDR`, `BMXBMI`, `smokes`, `LBXTC`, and `sbp_later`, which gave a count of 5483 and will serve as the sample size for the regression. A derived 2670 participants are missing compared to the total row count because, alongside those interviewed only and those with incomplete SBP readings, there are a large number with NA cholesterol tests (2436). All 2,436 cholesterol-NA rows are within the 2,670, which leaves 234 dropped for other reasons (derived, not observed).
+
+The clean data object is saved as a file, `adults_clean.rds`, in the `data/` folder so further scripts can pull it.
+
+Hitch: I did not have the necessary library package `dplyr` loaded at the top of the script, but there were no errors raised since I only tested it by running the pull and join script first in the same session. I resolved this by adding a line at the top of the script to load the library and then ran the clean.R script only from a clean session to confirm that it works on its own.
