@@ -41,7 +41,9 @@ A blank `SMQ040` is structural for never-smokers and truly missing otherwise, so
 
 This will be used as a reference key.
 
-*2026-11-17: Created an R script (placeholder...insert lou) to load the `DEMO_L` table and return the dataframe dimensions and variables. 
+*2026-11-17: Created an R script [01_pull_and_join.R](https://github.com/alissamaharaj/under-pressure/blob/main/src/01_pull_and_join.R) to load and join the data tables.
+
+First, the `DEMO_L` table was loaded, and the dataframe dimensions and variables were returned. 
 
 `DEMO_L` was checked for unique `SEQN` values and confirmed to have 11933 rows and 27 columns, all with unique `SEQN` values. The smoking data has 9015 rows and 9 columns.
 
@@ -52,3 +54,81 @@ I checked for 'NA' ages to ensure the discrepancy did not come from participants
 The smoking data was checked and confirmed that all `SEQN` values were also unique and all present in the total cycle data. The age range was also confirmed to be 12-80. The ages of the 373 participants were checked, and the range was 12-17, meaning all missing participants were under 18, making all adults accounted for in the smoking data. This project will only use adult data, so the 373-row discrepancy does not affect the project scope.
 
 Hitches encountered: when trying to determine the number of participants with age below 12, I attempted to use `nrow()` on the query, which returned `NULL` since the query returned a logical vector; this was resolved by using the `sum()` function to add the number of returned TRUE/FALSE values.
+
+*2026-11-19: Before starting, I ran the script from a clean session to show that it works.
+
+First, I pulled the `demo$RIDSTATR` table, which gave counts for `Interviewed only: 3073` and `Both interviewed and MEC examined: 8860`. According to the CDC website, from the [DEMO_L](https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2021/DataFiles/DEMO_L.htm) page, the RIDSTATR data differentiates thusly:
+
+"RIDSTATR: identifies whether a participant was both interviewed at home or by telephone and examined in the mobile examination center (MEC), or was only interviewed but never participated in the examination.", where `1` = Interviewed only, `2` = Both interviewed and MEC examined.
+
+Then, I pulled the tables `BMX_L`, `BPXO_L` and `TCHOL_L` and checked that there were no duplicated `SEQN` values or any `SEQN` values missing from the `DEMO_L` table for each. Based on the dimensions of these tables, there were 8860, 7801, and 8068 participants, respectively, meaning that all examined participants were in the bmx data, while bpxo (blood pressure) and tchol (cholesterol) each contained a subset of the exam group.
+
+From the CDC website, these were the stated eligibility criteria for the [bpxo](https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2021/DataFiles/BPXO_L.htm) and [tchol](https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2021/DataFiles/TCHOL_L.htm) samples, respectively:
+
+"Participants aged 8 years and older were eligible. Participants with any of the following on both arms were excluded from the exam: rashes, gauze dressings, casts, edema, paralysis, tubes, open sores or wounds, withered arms, and A-V shunts. Also, women who have had an axillary nodal biopsy or resection, or a unilateral radical mastectomy, do not have their blood pressure measured in the affected arm."
+
+"Examined participants aged 6 years and older were eligible...There are over 800 laboratory tests performed on NHANES participants. However, not all participants provided biospecimens or enough volume for all the tests to be performed."
+
+These may account for the discrepancy in the number of examined participants and the number of participants in the blood pressure and cholesterol data.
+
+Next, I checked the variables present in the blood pressure data to ensure that all 3 readings were present, then moved on to joining the five tables `demo`, `smq`, `bmx`, `bpxo`, and `tchol`, in that order, using individual `left_join`s since they preserve all rows from the left table so all the rows from the total demographic data are preserved and the columns from each other table are added and assigned NA where applicable. The row count was maintained at 11933 through every join, and the dimensions of the final table were 11933 rows x 70 columns.
+
+I then checked the NA counts for `SMQ020`, `BMXBMI`, `BPXOSY1` and `LBXTC`, which are unique primary values for each secondary table; these were:
+```
+SMQ020  BMXBMI BPXOSY1   LBXTC 
+  3798    3462    4416    5043
+```
+
+The four NA counts mix people absent from a table with people present but blank, and they cover all ages.
+
+I also did some one-off checks which were not included in the final R script to ensure that the `SEQN` values from each secondary table matched value for value with the demographic table, and did not only match the row counts.
+
+Then I cleaned up the script to remove the test and print lines, ran the trimmed script from a clean session, and did a one-off dimension check on the final result to ensure it was still working as expected, which it was.
+
+*2026-11-20: I added some lines to the end of the pull_and_join script so that it saves the joined table as an object that can be called by the data cleaning script instead of calling and running the entire script every time to avoid always having to pull from the CDC, which requires an online connection and is slow. This means if the pull_and_join script is ever changed, it must be rerun to regenerate a new `dsbpt` table object before the cleaning script is used. This generated file lives in the `data/` directory, which is gitignored.
+
+Hitch encountered at this point: the script generated a new data folder with the file inside it because my working directory was not set to my repo root, fixed by setting the repo root as the working directory and rerunning the script.
+
+Then I created [02_clean.R](insert lou), the data cleaning script. I pulled the `dsbpt` table object from the generated data file and ran some quick sanity checks to make sure it was loaded as expected; the dimensions and class matched as expected.
+
+Then I filtered the table by age to get adult rows only, the adult row count is 8153, and the filter rule is ">= 18", with 80 as a top code; a hitch here was that I attempted to use the `filter()` function by passing the arguments incorrectly. I passed a logical vector instead of the dataframe as the first argument and the bare column as the second.
+
+Using the filtered data, I created a table of the smoking questionnaire data counts, including NA rows, which returned this result:
+```
+Yes         No    Refused Don't know       <NA> 
+3243       4878          7          7         18
+```
+
+I added a column to the adults data to show smoker status derived from `SMQ020` first, in terms of 'never/former/current'; this includes the 32 adults NA: (18 blank, 7 Refused, 7 Don’t know). Hitches here were that, when setting the `case_when` for the column, I used `|` where `&` was needed, and I tried to hardcode "NA" as a string instead of `NA_character_`. I also had trouble trying to include the factor conversion nested in the initial `mutate` call, but ultimately decided that adding a second call to overwrite the first with the factor conversion was cleaner. This was the resulting table from the resulting column:
+```
+  never  former current    <NA> 
+   4878    2053    1190      32
+```
+
+I ran a few sanity checks on the blood pressure and cholesterol tables to make sure there were no special codes in the columns, only values; I checked the completeness of the blood pressure readings to check participant count by number of readings; the result of this check was:
+```
+0    1    2    3 
+6100   17    6 2030
+```
+with '0' being no missing readings and '3' being no readings.
+
+Then, pulling the `RIDSTATR` table and checking to evaluate the NA counts per reading for the exam data to confirm that every adult who was interviewed only was assigned 'NA' and to determine the "Examined but NA" counts. The results were:
+```
+Interviewed only Both interviewed and MEC examined 
+1816                              6337
+```
+
+```
+Variable	Adult NAs	Never examined	Examined, but NA
+BMXBMI			1,918			1,816				102
+BPXOSY1			2,030			1,816				214
+LBXTC			2,436			1,816				620
+```
+
+This count includes adults absent from BPXO_L or TCHOL_L and adults present but blank. The BP NA count also confirms that all 23 partial-reading adults have reading 1 present, since the NA count matches exactly the 3 readings missing count from the previous check.
+
+Next, for the blood pressure data, I decided that when calculating the means, the first reading will always be excluded and treated as a control value to account for deviations in initial readings due to the white-coat effect, etc., and use readings 2 and 3 to calculate the mean; in cases where only one other value is present, it serves as the mean on its own; in cases where reading 1 is the only value available, the mean is NA.
+
+Then I added two columns to the adults data, `sbp_first`, which copies the first reading, and `sbp_later`, which gives the mean of the other readings based on the criteria I just outlined. `rowMeans` gives `NaN` when both later readings are missing, so a second `mutate` is used to convert these to real NAs. This gives 2036 'NA' rows, where 2030 have no readings, and 6 have reading 1 as the only reading.
+
+Hitch: I tried to use `==` where `~` was required in a `case_when` assignment block when writing the `mutate` to give `NA_real_` objects to the empty mean rows.
