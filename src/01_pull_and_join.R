@@ -29,3 +29,7 @@ dsbp <- left_join(dsb, bpxo, by = "SEQN")
 
 # Joins tchol to dsbp as dsbpt
 dsbpt <- left_join(dsbp, tchol, by = "SEQN")
+
+# Saves the joined table so 02_clean.R can load it without re-pulling from CDC
+dir.create("data", showWarnings = FALSE)
+saveRDS(dsbpt, file = "data/dsbpt.rds")
