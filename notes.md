@@ -140,3 +140,20 @@ I built the object `adults_clean` consisting of the `SEQN`, `RIDAGEYR`, `RIAGEND
 The clean data object is saved as a file, `adults_clean.rds`, in the `data/` folder so further scripts can pull it.
 
 Hitch: I did not have the necessary library package `dplyr` loaded at the top of the script, but there were no errors raised since I only tested it by running the pull and join script first in the same session. I resolved this by adding a line at the top of the script to load the library and then ran the clean.R script only from a clean session to confirm that it works on its own.
+
+*2026-11-23: Created [03_explore.R](https://github.com/alissamaharaj/under-pressure/blob/main/src/03_explore.R), loaded the `adults_clean` dataframe, and created summary tables for smoking status and sex.
+
+Then, the histograms for 'Later Systolic BP in adults', 'Body Mass Index in adults', 'Total Cholesterol in adults', and 'Age in adults' were created.
+
+After that were the boxplots for 'Later Systolic BP in adults by Smoking status' and 'Later Systolic BP in adults by Sex'.
+
+Lastly, the scatterplots for 'Later Systolic BP in adults by Age', 'Later Systolic BP in adults by Body Mass Index', and 'Later Systolic BP in adults by Total Cholesterol' were created.
+
+The NA smoking group (32 adults) was kept in the summary table and the boxplot; `n` in the summary tables means group size, not the count behind each mean; and the warnings for removed rows for each plot matched the number of NA rows every time.
+
+Notable results from the plots were:
+- sbp_later and BMI are right-skewed.
+- The spread of sbp_later widens with age.
+- The BMI smoother looks curved; curvature and widening spreads matter for future residual plots.
+- 525 adults sit at the age 80 top code; this will go in `Limitations`.
+- Cholesterol shows a weak association with sbp_later in the plot.
