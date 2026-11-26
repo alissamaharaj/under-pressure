@@ -158,7 +158,7 @@ Notable results from the plots were:
 - 525 adults sit at the age 80 top code; this will go in `Limitations`.
 - Cholesterol shows a weak association with sbp_later in the plot.
 
-*2026-11-25: Created [04_tests.R](insert lou),  loaded the `adults_clean` dataframe, and filtered for rows with both `sbp_first` and `sbp_later`, giving 6117 rows. I used `mutate` to add a `sbp_diff` column to this filtered dataframe, which gives the difference in the SBP values, and then created a summary table and histogram of `sbp_diff`.
+*2026-11-25: Created [04_tests.R](https://github.com/alissamaharaj/under-pressure/blob/main/src/04_tests.R),  loaded the `adults_clean` dataframe, and filtered for rows with both `sbp_first` and `sbp_later`, giving 6117 rows. I used `mutate` to add a `sbp_diff` column to this filtered dataframe, which gives the difference in the SBP values, and then created a summary table and histogram of `sbp_diff`.
 
 Hitch: I accidentally added a `group_by(sbp_diff)` which made one group per distinct value, so `sd` came back NA.
 
