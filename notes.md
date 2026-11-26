@@ -160,3 +160,15 @@ Notable results from the plots were:
 
 *2026-11-25: Created [04_tests.R](insert lou),  loaded the `adults_clean` dataframe, and filtered for rows with both `sbp_first` and `sbp_later`, giving 6117 rows. I used `mutate` to add a `sbp_diff` column to this filtered dataframe, which gives the difference in the SBP values, and then created a summary table and histogram of `sbp_diff`.
 
+Hitch: I accidentally added a `group_by(sbp_diff)` which made one group per distinct value, so `sd` came back NA.
+
+*2026-11-26: Tests done:
+- t.test for the mean difference between sbp_first and sbp_later from paired
+- two-sample test comparing sbp_later by sex
+- variance test on smoking status and sbp_later with Tukey's Honestly Significant Difference test
+- chi-squared test of blood pressure and smoking status, cutoff 120 chosen from a 2025 [study](https://pmc.ncbi.nlm.nih.gov/articles/PMC12032999/) that associates SBP values under 120 with reduced mortality, >= puts exactly 120 in the upper group, and the levels are named neutrally ("below 120", "120 or above") 
+- correlation tests on age, BMI, and cholesterol
+
+The smoking tests drop the NA-smoking adults automatically, and the correlations drop incomplete pairs.
+
+When the script was complete, it was run from a clean session and passed as expected.
