@@ -172,3 +172,11 @@ Hitch: I accidentally added a `group_by(sbp_diff)` which made one group per dist
 The smoking tests drop the NA-smoking adults automatically, and the correlations drop incomplete pairs.
 
 When the script was complete, it was run from a clean session and passed as expected.
+
+*2026-11-27: Happy Birthday to Zess!
+
+Created [05_model.R](https://github.com/alissamaharaj/under-pressure/blob/main/src/05_model.R), loaded the `adults_clean` dataframe, and used it to build the multiple linear regression model of `sbp_later` with predictors `RIDAGEYR`, `RIAGENDR`, `BMXBMI`, `smokes`, and `LBXTC`. I then created objects for the model summary and confidence intervals.
+
+Two console checks were done: the rows used by lm() matched the 5,483 complete cases (2,670 dropped), and the reference levels were confirmed as Male for sex and never for smoking.
+
+Just as with phase 4, when the script was complete, it was run from a clean session and passed as expected.
