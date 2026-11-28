@@ -1,6 +1,6 @@
 **START**
 
-*2026-11-16: This project is a regression model using NHANES public health blood pressure data to determine which factors are associated with systolic blood pressure in adults, considering age, sex, BMI, smoking, and cholesterol.
+*2026-11-16*: This project is a regression model using NHANES public health blood pressure data to determine which factors are associated with systolic blood pressure in adults, considering age, sex, BMI, smoking, and cholesterol.
 
 This GitHub repository was created with this notes file, and the main folders were committed with placeholder `.gitkeep` files. The `data/` folder was added to `.gitignore` so it remains uncommitted.
 
@@ -41,7 +41,7 @@ A blank `SMQ040` is structural for never-smokers and truly missing otherwise, so
 
 This will be used as a reference key.
 
-*2026-11-17: Created an R script [01_pull_and_join.R](https://github.com/alissamaharaj/under-pressure/blob/main/src/01_pull_and_join.R) to load and join the data tables.
+*2026-11-17*: Created an R script [01_pull_and_join.R](https://github.com/alissamaharaj/under-pressure/blob/main/src/01_pull_and_join.R) to load and join the data tables.
 
 First, the `DEMO_L` table was loaded, and the dataframe dimensions and variables were returned. 
 
@@ -55,7 +55,7 @@ The smoking data was checked and confirmed that all `SEQN` values were also uniq
 
 Hitches encountered: when trying to determine the number of participants with age below 12, I attempted to use `nrow()` on the query, which returned `NULL` since the query returned a logical vector; this was resolved by using the `sum()` function to add the number of returned TRUE/FALSE values.
 
-*2026-11-19: Before starting, I ran the script from a clean session to show that it works.
+*2026-11-19*: Before starting, I ran the script from a clean session to show that it works.
 
 First, I pulled the `demo$RIDSTATR` table, which gave counts for `Interviewed only: 3073` and `Both interviewed and MEC examined: 8860`. According to the CDC website, from the [DEMO_L](https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2021/DataFiles/DEMO_L.htm) page, the RIDSTATR data differentiates thusly:
 
@@ -85,7 +85,7 @@ I also did some one-off checks which were not included in the final R script to 
 
 Then I cleaned up the script to remove the test and print lines, ran the trimmed script from a clean session, and did a one-off dimension check on the final result to ensure it was still working as expected, which it was.
 
-*2026-11-20: I added some lines to the end of the pull_and_join script so that it saves the joined table as an object that can be called by the data cleaning script instead of calling and running the entire script every time to avoid always having to pull from the CDC, which requires an online connection and is slow. This means if the pull_and_join script is ever changed, it must be rerun to regenerate a new `dsbpt` table object before the cleaning script is used. This generated file lives in the `data/` directory, which is gitignored.
+*2026-11-20*: I added some lines to the end of the pull_and_join script so that it saves the joined table as an object that can be called by the data cleaning script instead of calling and running the entire script every time to avoid always having to pull from the CDC, which requires an online connection and is slow. This means if the pull_and_join script is ever changed, it must be rerun to regenerate a new `dsbpt` table object before the cleaning script is used. This generated file lives in the `data/` directory, which is gitignored.
 
 Hitch encountered at this point: the script generated a new data folder with the file inside it because my working directory was not set to my repo root, fixed by setting the repo root as the working directory and rerunning the script.
 
@@ -133,7 +133,7 @@ Then I added two columns to the adults data, `sbp_first`, which copies the first
 
 Hitch: I tried to use `==` where `~` was required in a `case_when` assignment block when writing the `mutate` to give `NA_real_` objects to the empty mean rows.
 
-*2026-11-21: I confirmed that the `RIAGENDR` data gives a factor with readable labels, so no refactor was needed like I had to do for the smoking data. It gives a row count of 8153 with no NAs, which covers all the adult data. "Male" is the first level of `RIAGENDR` so it is the regression reference, and the sex coefficient will be "Female" relative to "Male".
+*2026-11-21*: I confirmed that the `RIAGENDR` data gives a factor with readable labels, so no refactor was needed like I had to do for the smoking data. It gives a row count of 8153 with no NAs, which covers all the adult data. "Male" is the first level of `RIAGENDR` so it is the regression reference, and the sex coefficient will be "Female" relative to "Male".
 
 I built the object `adults_clean` consisting of the `SEQN`, `RIDAGEYR`, `RIAGENDR`, `BMXBMI`, `smokes`, `LBXTC`, `sbp_first`, and `sbp_later` columns and did sanity checks for the number of rows and the number of NAs for each, which gave the expected outputs. All adults in adults_clean, with no rows dropped, so the paired test and the model share one object. I also checked the number of complete cases for the model variables: `RIDAGEYR`, `RIAGENDR`, `BMXBMI`, `smokes`, `LBXTC`, and `sbp_later`, which gave a count of 5483 and will serve as the sample size for the regression. A derived 2670 participants are missing compared to the total row count because, alongside those interviewed only and those with incomplete SBP readings, there are a large number with NA cholesterol tests (2436). All 2,436 cholesterol-NA rows are within the 2,670, which leaves 234 dropped for other reasons (derived, not observed).
 
@@ -141,7 +141,7 @@ The clean data object is saved as a file, `adults_clean.rds`, in the `data/` fol
 
 Hitch: I did not have the necessary library package `dplyr` loaded at the top of the script, but there were no errors raised since I only tested it by running the pull and join script first in the same session. I resolved this by adding a line at the top of the script to load the library and then ran the clean.R script only from a clean session to confirm that it works on its own.
 
-*2026-11-23: Created [03_explore.R](https://github.com/alissamaharaj/under-pressure/blob/main/src/03_explore.R), loaded the `adults_clean` dataframe, and created summary tables for smoking status and sex.
+*2026-11-23*: Created [03_explore.R](https://github.com/alissamaharaj/under-pressure/blob/main/src/03_explore.R), loaded the `adults_clean` dataframe, and created summary tables for smoking status and sex.
 
 Then, the histograms for 'Later Systolic BP in adults', 'Body Mass Index in adults', 'Total Cholesterol in adults', and 'Age in adults' were created.
 
@@ -158,11 +158,11 @@ Notable results from the plots were:
 - 525 adults sit at the age 80 top code; this will go in `Limitations`.
 - Cholesterol shows a weak association with sbp_later in the plot.
 
-*2026-11-25: Created [04_tests.R](https://github.com/alissamaharaj/under-pressure/blob/main/src/04_tests.R),  loaded the `adults_clean` dataframe, and filtered for rows with both `sbp_first` and `sbp_later`, giving 6117 rows. I used `mutate` to add a `sbp_diff` column to this filtered dataframe, which gives the difference in the SBP values, and then created a summary table and histogram of `sbp_diff`.
+*2026-11-25*: Created [04_tests.R](https://github.com/alissamaharaj/under-pressure/blob/main/src/04_tests.R),  loaded the `adults_clean` dataframe, and filtered for rows with both `sbp_first` and `sbp_later`, giving 6117 rows. I used `mutate` to add a `sbp_diff` column to this filtered dataframe, which gives the difference in the SBP values, and then created a summary table and histogram of `sbp_diff`.
 
 Hitch: I accidentally added a `group_by(sbp_diff)` which made one group per distinct value, so `sd` came back NA.
 
-*2026-11-26: Tests done:
+*2026-11-26*: Tests done:
 - t.test for the mean difference between sbp_first and sbp_later from paired
 - two-sample test comparing sbp_later by sex
 - variance test on smoking status and sbp_later with Tukey's Honestly Significant Difference test
@@ -173,10 +173,23 @@ The smoking tests drop the NA-smoking adults automatically, and the correlations
 
 When the script was complete, it was run from a clean session and passed as expected.
 
-*2026-11-27: Happy Birthday to Zess!
+*2026-11-27*: Happy Birthday to Zess!
 
 Created [05_model.R](https://github.com/alissamaharaj/under-pressure/blob/main/src/05_model.R), loaded the `adults_clean` dataframe, and used it to build the multiple linear regression model of `sbp_later` with predictors `RIDAGEYR`, `RIAGENDR`, `BMXBMI`, `smokes`, and `LBXTC`. I then created objects for the model summary and confidence intervals.
 
 Two console checks were done: the rows used by lm() matched the 5,483 complete cases (2,670 dropped), and the reference levels were confirmed as Male for sex and never for smoking.
 
 Just as with phase 4, when the script was complete, it was run from a clean session and passed as expected.
+
+Then I created [06_diagnostics.R](https://github.com/alissamaharaj/under-pressure/blob/main/src/06_diagnostics.R), loaded the `adults_clean` dataframe, rebuilt the regression model in the script instead of sourcing or loading it so the script can run as a standalone, then built the diagnostic plots:
+- residuals scatterplot against fitted
+- residuals scatterplot against BMI
+- residuals scatterplot against age
+- residuals histogram
+- residuals qq plot
+
+I also added a Cook's distance column to the model_df dataframe.
+
+I also did a run from a clean session of this script which finished with no errors and did row count and column name checks on the dataframe which passed as expected.
+
+Hitches: for the first scatterplot, I had the residuals and fitted axes swapped; for the histogram and qq plot, I had the calls combined in one ggplot2 line instead of as separate calls for separate plots; and for the Cook's distance function, I gave it the model dataframe instead of the model.
